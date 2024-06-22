@@ -6,7 +6,7 @@ WORKDIR /app
 ARG PIP_VERSION=24.0
 ARG POETRY_VERSION=1.7.1
 ARG GS_VERSION=10.02.1
-ARG TORCH_VERSION=2.2.2
+ARG TORCH_VERSION=2.3.1
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV GS_URL=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10021/ghostscript-${GS_VERSION}.tar.gz
@@ -54,11 +54,7 @@ RUN python -c "import torch" \
     torchvision \
     torchaudio==${TORCH_VERSION}
 
-COPY ./pyproject.toml ./poetry.lock ./
-RUN python -c "import torch" || poetry remove torch
-
-# RUN poetry install --no-dev --no-interaction --no-ansi --no-root
-COPY requirements.txt requirements.txt 
+COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 ARG TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
@@ -68,3 +64,5 @@ ENV TESSDATA_PREFIX=${TESSDATA_PREFIX}
 RUN find / -name tessdata 2> /dev/null | grep "${TESSDATA_PREFIX}"
 
 COPY . .
+
+ENTRYPOINT [ "python", "app.py" ]
